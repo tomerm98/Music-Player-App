@@ -38,19 +38,9 @@ public class MediaPlayerService extends Service {
         super.onCreate();
         initializeIntents();
         Intent notificationIntent = new Intent(this, MediaPlayerService.class);
-
-        //possibly necessary (but probably not):
-        //notificationIntent.setAction("main");
-        //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                //| Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         notification = new Notification.Builder(this)
-                //very possibly necessary:
-                .setContentTitle("")
-                .setContentText("")
                 .setSmallIcon(R.mipmap.ic_launcher)
-                //.setWhen(System.currentTimeMillis())
-                //.setContentIntent(pendingIntent)
                 .build();
 
         initializeNotiLayout();
@@ -59,14 +49,16 @@ public class MediaPlayerService extends Service {
     private void initializeNotiLayout() {
         remoteViews = new RemoteViews(getPackageName(), R.layout.notification);
 
-        remoteViews.setOnClickPendingIntent(R.id.btnStop,
+        remoteViews.setOnClickPendingIntent(R.id.imgBtnStop,
                 PendingIntent.getService(this, 0, endIntent, 0));
     }
     private void updateNotiLayout()
     {
 
         notification.contentView = remoteViews;
+
         startForeground(1, notification);
+
     }
 
     private void initializeIntents()
