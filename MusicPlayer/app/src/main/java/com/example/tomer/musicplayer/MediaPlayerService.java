@@ -3,12 +3,15 @@ package com.example.tomer.musicplayer;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -21,6 +24,7 @@ public class MediaPlayerService extends Service {
     Notification notification;
     Intent endIntent, pauseIntent, resumeIntent, replayIntent;
     RemoteViews remoteViews;
+    TelephonyManager telephonyManager;
     final static String EXTRA_RES_ID = "resID";
     final static String EXTRA_URI = "uri";
     final static String ACTION_END = "end";
@@ -51,6 +55,24 @@ public class MediaPlayerService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
         initializeNotiLayout();
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager.listen(new PhoneStateListener()
+        {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                super.onCallStateChanged(state, incomingNumber);
+                switch (state)
+                {
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        startService(pauseIntent);
+                        break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        startService(resumeIntent);
+                        break;
+                }
+            }
+        },PhoneStateListener.LISTEN_CALL_STATE);
+
     }
 
 
